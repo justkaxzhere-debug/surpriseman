@@ -181,7 +181,14 @@ body{background:linear-gradient(135deg,#ffe4f0 0%,#fff0fa 40%,#ffecd2 100%);font
 <div class="hearts-bg" id="heartsContainer"></div>
 
 <!-- BACKGROUND MUSIC -->
-<div id="musicBtn" onclick="toggleMusic()" title="Toggle Music" style="position:fixed;bottom:24px;right:20px;z-index:9999;background:linear-gradient(135deg,#ff6b9d,#c2185b);border:none;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(233,30,140,0.45);transition:transform .2s;font-size:22px;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">🔇</div>
+<iframe id="ytPlayer" width="1" height="1"
+  src="https://www.youtube.com/embed/qx1qU_K9GG8?enablejsapi=1&autoplay=0&loop=1&playlist=qx1qU_K9GG8&controls=0&mute=0"
+  frameborder="0" allow="autoplay"
+  style="position:fixed;bottom:0;left:0;opacity:0;pointer-events:none;"></iframe>
+<div id="musicBtn" onclick="toggleMusic()" title="Toggle Music" style="position:fixed;bottom:24px;right:20px;z-index:9999;background:linear-gradient(135deg,#ff6b9d,#c2185b);border:none;border-radius:50%;width:56px;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(233,30,140,0.45);transition:transform .2s;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">
+  <span id="musicIcon" style="font-size:20px;">🔇</span>
+  <span style="font-size:8px;color:#fff;font-weight:700;letter-spacing:0.5px;margin-top:1px;">MUSIC</span>
+</div>
 
 <!-- HEARTS MINI-GAME -->
 <div id="heartGame" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(20,0,30,0.93);flex-direction:column;align-items:center;justify-content:center;">
@@ -1071,56 +1078,49 @@ updateCountdown();setInterval(updateCountdown,1000);
   animTrail();
 })();
 
-// ===== 4. BACKGROUND MUSIC (Web Audio API — gentle melody) =====
+// ===== 4. BACKGROUND MUSIC (YouTube iframe) =====
 let musicOn = false;
-let audioCtx = null;
-let musicNodes = [];
-let musicScheduled = false;
+let ytPlayerReady = false;
+let ytPlayerObj = null;
 
-function buildMelody(){
-  if(audioCtx) return;
-  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  playMelody();
-}
-
-const melodyNotes = [523.25,587.33,659.25,698.46,783.99,880,987.77,1046.5];
-const melodyPattern = [0,2,4,2,3,2,0,4,2,0,1,2,4,3,2,0];
-let melodyIdx = 0;
-
-function playMelody(){
-  if(!audioCtx||!musicOn) return;
-  const now = audioCtx.currentTime;
-  melodyPattern.forEach((noteIdx, i) => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = melodyNotes[noteIdx];
-    gain.gain.setValueAtTime(0, now + i*0.35);
-    gain.gain.linearRampToValueAtTime(0.07, now + i*0.35 + 0.05);
-    gain.gain.linearRampToValueAtTime(0, now + i*0.35 + 0.3);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(now + i*0.35);
-    osc.stop(now + i*0.35 + 0.35);
-    musicNodes.push(osc);
+// YouTube IFrame API
+window.onYouTubeIframeAPIReady = function(){
+  ytPlayerObj = new YT.Player('ytPlayer', {
+    events: {
+      'onReady': function(e){ ytPlayerReady = true; e.target.setVolume(60); }
+    }
   });
-  const loopTime = melodyPattern.length * 0.35 * 1000;
-  setTimeout(()=>{ if(musicOn) playMelody(); }, loopTime + 400);
-}
+};
+
+// Load YouTube API
+(function(){
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
 
 function toggleMusic(){
+  const icon = document.getElementById('musicIcon');
   const btn = document.getElementById('musicBtn');
   if(!musicOn){
     musicOn = true;
-    btn.textContent = '🎵';
+    icon.textContent = '🎵';
     btn.style.background = 'linear-gradient(135deg,#4caf50,#2e7d32)';
-    if(!audioCtx){ buildMelody(); }
-    else { if(audioCtx.state==='suspended') audioCtx.resume(); playMelody(); }
+    if(ytPlayerReady && ytPlayerObj){ ytPlayerObj.playVideo(); }
+    else {
+      // fallback: reload iframe with autoplay
+      const iframe = document.getElementById('ytPlayer');
+      iframe.src = 'https://www.youtube.com/embed/qx1qU_K9GG8?enablejsapi=1&autoplay=1&loop=1&playlist=qx1qU_K9GG8&controls=0&mute=0';
+    }
   } else {
     musicOn = false;
-    btn.textContent = '🔇';
+    icon.textContent = '🔇';
     btn.style.background = 'linear-gradient(135deg,#ff6b9d,#c2185b)';
-    if(audioCtx) audioCtx.suspend();
+    if(ytPlayerReady && ytPlayerObj){ ytPlayerObj.pauseVideo(); }
+    else {
+      const iframe = document.getElementById('ytPlayer');
+      iframe.src = 'https://www.youtube.com/embed/qx1qU_K9GG8?enablejsapi=1&autoplay=0&loop=1&playlist=qx1qU_K9GG8&controls=0&mute=0';
+    }
   }
 }
 
