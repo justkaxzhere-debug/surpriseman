@@ -179,12 +179,56 @@ body{background:linear-gradient(135deg,#ffe4f0 0%,#fff0fa 40%,#ffecd2 100%);font
 <body>
 <canvas id="fireworksCanvas"></canvas>
 <div class="hearts-bg" id="heartsContainer"></div>
+
+<!-- BACKGROUND MUSIC -->
+<div id="musicBtn" onclick="toggleMusic()" title="Toggle Music" style="position:fixed;bottom:24px;right:20px;z-index:9999;background:linear-gradient(135deg,#ff6b9d,#c2185b);border:none;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(233,30,140,0.45);transition:transform .2s;font-size:22px;" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">🔇</div>
+
+<!-- HEARTS MINI-GAME -->
+<div id="heartGame" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(20,0,30,0.93);flex-direction:column;align-items:center;justify-content:center;">
+  <canvas id="gameCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+  <div style="position:relative;z-index:2;text-align:center;pointer-events:none;">
+    <div style="font-family:'Dancing Script',cursive;font-size:28px;color:#fff;margin-bottom:6px;">Catch the Hearts! 💕</div>
+    <div style="font-size:13px;color:#ffb3d1;margin-bottom:18px;">Tap the falling hearts before they escape!</div>
+    <div style="display:flex;gap:24px;justify-content:center;margin-bottom:10px;">
+      <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:10px 22px;text-align:center;">
+        <div style="font-size:11px;color:#ffb3d1;letter-spacing:1px;">SCORE</div>
+        <div id="gameScore" style="font-family:'Playfair Display',serif;font-size:30px;color:#ffd700;font-weight:700;">0</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:10px 22px;text-align:center;">
+        <div style="font-size:11px;color:#ffb3d1;letter-spacing:1px;">TIME</div>
+        <div id="gameTimer" style="font-family:'Playfair Display',serif;font-size:30px;color:#ff6b9d;font-weight:700;">30</div>
+      </div>
+    </div>
+    <button onclick="closeGame()" style="pointer-events:all;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);color:#fff;padding:8px 22px;border-radius:100px;font-size:13px;cursor:pointer;">✕ Close</button>
+  </div>
+  <div id="gameOver" style="display:none;position:absolute;inset:0;z-index:10;background:rgba(20,0,30,0.96);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;">
+    <div style="font-size:56px;margin-bottom:12px;">💖</div>
+    <div style="font-family:'Dancing Script',cursive;font-size:30px;color:#ffd700;margin-bottom:8px;">Time's Up!</div>
+    <div style="font-family:'Playfair Display',serif;font-size:48px;color:#ff6b9d;font-weight:700;margin-bottom:6px;" id="finalScore">0</div>
+    <div style="font-size:14px;color:#ffb3d1;margin-bottom:10px;">hearts caught 💕</div>
+    <div id="gameMsg" style="font-family:'Dancing Script',cursive;font-size:22px;color:#fff;margin-bottom:28px;max-width:340px;line-height:1.5;"></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <button onclick="startGame()" style="background:linear-gradient(135deg,#ff6b9d,#c2185b);border:none;border-radius:14px;color:#fff;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer;">Play Again 🔄</button>
+      <button onclick="closeGame()" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.3);color:#fff;padding:12px 22px;border-radius:14px;font-size:15px;cursor:pointer;">Close ✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- CURSOR TRAIL CANVAS -->
+<canvas id="trailCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9997;"></canvas>
+
 <div class="page">
-  <div class="hero">
-    <div class="birthday-tag">🎀 July 6th is Finally Here (Almost!) 🎀</div>
-    <div class="main-title">Happy Birthday</div>
-    <div class="name">Pranitha!</div>
-    <div class="nickname-badge">🐃 aka Buffalo &nbsp;•&nbsp; My Favourite Person 💕</div>
+  <div class="hero" style="position:relative;overflow:hidden;border-radius:28px;padding:48px 28px 40px;background:linear-gradient(135deg,rgba(10,0,30,0.95),rgba(30,0,60,0.97));margin-bottom:0;width:100%;max-width:600px;">
+    <canvas id="starCanvas" style="position:absolute;inset:0;width:100%;height:100%;border-radius:28px;"></canvas>
+    <div style="position:relative;z-index:2;text-align:center;">
+      <div class="birthday-tag">🎀 July 6th is Finally Here (Almost!) 🎀</div>
+      <div class="main-title" id="mainTitle" style="color:#fff;text-shadow:0 0 30px rgba(255,107,157,0.8);min-height:1.2em;">&nbsp;</div>
+      <div class="name" style="text-shadow:0 0 30px rgba(255,107,53,0.5);">Pranitha!</div>
+      <div class="nickname-badge" style="background:rgba(255,255,255,0.12);border-color:rgba(255,179,209,0.4);color:#ffb3d1;">🐃 aka Buffalo &nbsp;•&nbsp; My Favourite Person 💕</div>
+      <div style="margin-top:18px;">
+        <button onclick="openGame()" style="background:linear-gradient(135deg,#ff6b9d,#c2185b);border:none;border-radius:100px;color:#fff;font-size:13px;font-weight:700;padding:10px 22px;cursor:pointer;box-shadow:0 4px 16px rgba(233,30,140,0.4);animation:pulse 2s infinite;">💕 Play: Catch the Hearts!</button>
+      </div>
+    </div>
   </div>
   <div class="cake-area" id="cakeArea">
     <div style="font-family:'Dancing Script',cursive;font-size:17px;color:#ff8a80;margin-bottom:6px;">Make a wish and blow! 🌬️</div>
@@ -916,6 +960,309 @@ function visitDest(el, name, emoji, msg){
 // ===== COUNTDOWN =====
 function updateCountdown(){const now=new Date();let target=new Date(now.getFullYear(),6,6);if(now>target)target.setFullYear(target.getFullYear()+1);const diff=target-now;const isToday=now.getMonth()===6&&now.getDate()===6;if(isToday){document.getElementById('countdownBoxes').style.display='none';document.getElementById('birthdayNow').style.display='block';}else{document.getElementById('cd-d').textContent=String(Math.floor(diff/86400000)).padStart(2,'0');document.getElementById('cd-h').textContent=String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');document.getElementById('cd-m').textContent=String(Math.floor((diff%3600000)/60000)).padStart(2,'0');document.getElementById('cd-s').textContent=String(Math.floor((diff%60000)/1000)).padStart(2,'0');}}
 updateCountdown();setInterval(updateCountdown,1000);
+
+// ===== 1. ANIMATED STAR BACKGROUND =====
+(function(){
+  const sc = document.getElementById('starCanvas');
+  if(!sc) return;
+  const sx = sc.getContext('2d');
+  const stars = [];
+  const shootingStars = [];
+  function resizeStar(){sc.width=sc.offsetWidth;sc.height=sc.offsetHeight;}
+  resizeStar();
+  window.addEventListener('resize', resizeStar);
+  for(let i=0;i<120;i++){
+    stars.push({x:Math.random(),y:Math.random(),r:0.4+Math.random()*1.6,a:Math.random(),da:(0.005+Math.random()*0.01)*(Math.random()<0.5?1:-1),color:['#fff','#ffb3d1','#ffd700','#e0b0ff'][Math.floor(Math.random()*4)]});
+  }
+  function spawnShoot(){
+    shootingStars.push({x:Math.random()*sc.width,y:Math.random()*sc.height*0.5,len:60+Math.random()*80,angle:Math.PI/5+Math.random()*0.3,speed:6+Math.random()*6,alpha:1,tail:[]});
+  }
+  setInterval(spawnShoot,1800);
+  function animStars(){
+    sx.clearRect(0,0,sc.width,sc.height);
+    stars.forEach(s=>{
+      s.a+=s.da;
+      if(s.a>1||s.a<0) s.da*=-1;
+      sx.save();
+      sx.globalAlpha=Math.max(0.1,s.a);
+      sx.fillStyle=s.color;
+      sx.shadowColor=s.color;
+      sx.shadowBlur=6;
+      sx.beginPath();
+      sx.arc(s.x*sc.width,s.y*sc.height,s.r,0,Math.PI*2);
+      sx.fill();
+      sx.restore();
+    });
+    for(let i=shootingStars.length-1;i>=0;i--){
+      const ss=shootingStars[i];
+      ss.x+=Math.cos(ss.angle)*ss.speed;
+      ss.y+=Math.sin(ss.angle)*ss.speed;
+      ss.alpha-=0.025;
+      sx.save();
+      sx.globalAlpha=Math.max(0,ss.alpha);
+      const grd=sx.createLinearGradient(ss.x-Math.cos(ss.angle)*ss.len,ss.y-Math.sin(ss.angle)*ss.len,ss.x,ss.y);
+      grd.addColorStop(0,'rgba(255,255,255,0)');
+      grd.addColorStop(1,'rgba(255,220,240,0.9)');
+      sx.strokeStyle=grd;
+      sx.lineWidth=1.5;
+      sx.beginPath();
+      sx.moveTo(ss.x-Math.cos(ss.angle)*ss.len,ss.y-Math.sin(ss.angle)*ss.len);
+      sx.lineTo(ss.x,ss.y);
+      sx.stroke();
+      sx.restore();
+      if(ss.alpha<=0) shootingStars.splice(i,1);
+    }
+    requestAnimationFrame(animStars);
+  }
+  animStars();
+})();
+
+// ===== 2. TYPEWRITER EFFECT =====
+(function(){
+  const el = document.getElementById('mainTitle');
+  if(!el) return;
+  const text = 'Happy Birthday';
+  let i = 0;
+  el.textContent = '';
+  function type(){
+    if(i<=text.length){
+      el.textContent = text.slice(0,i) + (i<text.length?'|':'');
+      i++;
+      setTimeout(type, i===text.length?600:80);
+    } else {
+      el.textContent = text;
+    }
+  }
+  setTimeout(type, 600);
+})();
+
+// ===== 3. CURSOR TRAIL =====
+(function(){
+  const tc = document.getElementById('trailCanvas');
+  const tx = tc.getContext('2d');
+  const particles = [];
+  const trailEmojis = ['💕','✨','🌸','💖','⭐','💗','🌺'];
+  function resizeTrail(){tc.width=window.innerWidth;tc.height=window.innerHeight;}
+  resizeTrail();
+  window.addEventListener('resize',resizeTrail);
+  let lastX=0,lastY=0;
+  function addParticle(x,y){
+    if(Math.abs(x-lastX)<8&&Math.abs(y-lastY)<8) return;
+    lastX=x;lastY=y;
+    particles.push({x,y,emoji:trailEmojis[Math.floor(Math.random()*trailEmojis.length)],size:14+Math.random()*10,alpha:1,vy:-0.8-Math.random()*0.8,vx:(Math.random()-0.5)*1.2,life:1});
+  }
+  window.addEventListener('mousemove',e=>addParticle(e.clientX,e.clientY));
+  window.addEventListener('touchmove',e=>{const t=e.touches[0];addParticle(t.clientX,t.clientY);},{passive:true});
+  function animTrail(){
+    tx.clearRect(0,0,tc.width,tc.height);
+    for(let i=particles.length-1;i>=0;i--){
+      const p=particles[i];
+      p.x+=p.vx; p.y+=p.vy; p.alpha-=0.03; p.size*=0.97;
+      if(p.alpha<=0){particles.splice(i,1);continue;}
+      tx.save();
+      tx.globalAlpha=p.alpha;
+      tx.font=p.size+'px serif';
+      tx.textAlign='center';
+      tx.fillText(p.emoji,p.x,p.y);
+      tx.restore();
+    }
+    requestAnimationFrame(animTrail);
+  }
+  animTrail();
+})();
+
+// ===== 4. BACKGROUND MUSIC (Web Audio API — gentle melody) =====
+let musicOn = false;
+let audioCtx = null;
+let musicNodes = [];
+let musicScheduled = false;
+
+function buildMelody(){
+  if(audioCtx) return;
+  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  playMelody();
+}
+
+const melodyNotes = [523.25,587.33,659.25,698.46,783.99,880,987.77,1046.5];
+const melodyPattern = [0,2,4,2,3,2,0,4,2,0,1,2,4,3,2,0];
+let melodyIdx = 0;
+
+function playMelody(){
+  if(!audioCtx||!musicOn) return;
+  const now = audioCtx.currentTime;
+  melodyPattern.forEach((noteIdx, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = melodyNotes[noteIdx];
+    gain.gain.setValueAtTime(0, now + i*0.35);
+    gain.gain.linearRampToValueAtTime(0.07, now + i*0.35 + 0.05);
+    gain.gain.linearRampToValueAtTime(0, now + i*0.35 + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now + i*0.35);
+    osc.stop(now + i*0.35 + 0.35);
+    musicNodes.push(osc);
+  });
+  const loopTime = melodyPattern.length * 0.35 * 1000;
+  setTimeout(()=>{ if(musicOn) playMelody(); }, loopTime + 400);
+}
+
+function toggleMusic(){
+  const btn = document.getElementById('musicBtn');
+  if(!musicOn){
+    musicOn = true;
+    btn.textContent = '🎵';
+    btn.style.background = 'linear-gradient(135deg,#4caf50,#2e7d32)';
+    if(!audioCtx){ buildMelody(); }
+    else { if(audioCtx.state==='suspended') audioCtx.resume(); playMelody(); }
+  } else {
+    musicOn = false;
+    btn.textContent = '🔇';
+    btn.style.background = 'linear-gradient(135deg,#ff6b9d,#c2185b)';
+    if(audioCtx) audioCtx.suspend();
+  }
+}
+
+// ===== 5. CATCH THE HEARTS MINI GAME =====
+let gameActive = false;
+let gameScore = 0;
+let gameTimeLeft = 30;
+let gameTimerInterval = null;
+let gameHearts = [];
+let gameAnimId = null;
+const gameCanvas = document.getElementById('gameCanvas');
+const gctx = gameCanvas.getContext('2d');
+const heartEmojis = ['💕','💖','💗','💓','💝','❤️','🩷'];
+const gameMsgs = [
+  [0,  10,  "Aww, keep trying! Pranitha is still the best 🌸"],
+  [11, 20,  "Not bad! You caught quite a few hearts 💕"],
+  [21, 35,  "Wow, great catch! Just like how I caught feelings for Pranitha 😌💖"],
+  [36, 50,  "Amazing! You're almost as good at catching hearts as Pranitha is at stealing mine 🐃💕"],
+  [51, 999, "LEGENDARY! You caught them all — just like Pranitha caught my whole heart forever 🌟💖🎉"]
+];
+
+function resizeGameCanvas(){
+  gameCanvas.width = window.innerWidth;
+  gameCanvas.height = window.innerHeight;
+}
+resizeGameCanvas();
+window.addEventListener('resize', resizeGameCanvas);
+
+function openGame(){
+  document.getElementById('heartGame').style.display='flex';
+  document.getElementById('gameOver').style.display='none';
+  startGame();
+}
+
+function closeGame(){
+  document.getElementById('heartGame').style.display='none';
+  gameActive=false;
+  if(gameTimerInterval) clearInterval(gameTimerInterval);
+  if(gameAnimId) cancelAnimationFrame(gameAnimId);
+  gameHearts=[];
+  gctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+}
+
+function startGame(){
+  resizeGameCanvas();
+  gameActive=true;
+  gameScore=0;
+  gameTimeLeft=30;
+  gameHearts=[];
+  document.getElementById('gameScore').textContent='0';
+  document.getElementById('gameTimer').textContent='30';
+  document.getElementById('gameOver').style.display='none';
+  if(gameTimerInterval) clearInterval(gameTimerInterval);
+  gameTimerInterval = setInterval(()=>{
+    gameTimeLeft--;
+    document.getElementById('gameTimer').textContent=gameTimeLeft;
+    if(gameTimeLeft<=0){
+      clearInterval(gameTimerInterval);
+      endGame();
+    }
+  },1000);
+  spawnHearts();
+  gameLoop();
+}
+
+function spawnHearts(){
+  if(!gameActive) return;
+  gameHearts.push({
+    x: 40+Math.random()*(gameCanvas.width-80),
+    y: -40,
+    emoji: heartEmojis[Math.floor(Math.random()*heartEmojis.length)],
+    size: 28+Math.random()*22,
+    speed: 1.8+Math.random()*2.5,
+    wobble: Math.random()*Math.PI*2,
+    wobbleSpeed: 0.04+Math.random()*0.03,
+    caught: false, catchAnim: 0
+  });
+  setTimeout(spawnHearts, 600+Math.random()*500);
+}
+
+function gameLoop(){
+  if(!gameActive) return;
+  gctx.clearRect(0,0,gameCanvas.width,gameCanvas.height);
+  for(let i=gameHearts.length-1;i>=0;i--){
+    const h=gameHearts[i];
+    if(h.caught){
+      h.catchAnim++;
+      gctx.save();
+      gctx.globalAlpha=1-h.catchAnim/18;
+      gctx.font=(h.size+h.catchAnim*2)+'px serif';
+      gctx.textAlign='center';
+      gctx.fillText(h.emoji,h.x,h.y);
+      gctx.restore();
+      if(h.catchAnim>18) gameHearts.splice(i,1);
+      continue;
+    }
+    h.wobble+=h.wobbleSpeed;
+    h.x+=Math.sin(h.wobble)*1.2;
+    h.y+=h.speed;
+    gctx.save();
+    gctx.font=h.size+'px serif';
+    gctx.textAlign='center';
+    gctx.shadowColor='rgba(255,100,160,0.6)';
+    gctx.shadowBlur=10;
+    gctx.fillText(h.emoji,h.x,h.y);
+    gctx.restore();
+    if(h.y>gameCanvas.height+40) gameHearts.splice(i,1);
+  }
+  gameAnimId=requestAnimationFrame(gameLoop);
+}
+
+function handleGameTap(e){
+  if(!gameActive) return;
+  const rect=gameCanvas.getBoundingClientRect();
+  const cx = (e.touches?e.touches[0].clientX:e.clientX)-rect.left;
+  const cy = (e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+  let hit=false;
+  for(let i=gameHearts.length-1;i>=0;i--){
+    const h=gameHearts[i];
+    if(h.caught) continue;
+    const dist=Math.hypot(cx-h.x,cy-h.y);
+    if(dist<h.size){
+      h.caught=true; h.catchAnim=0;
+      gameScore++;
+      document.getElementById('gameScore').textContent=gameScore;
+      hit=true; break;
+    }
+  }
+}
+
+gameCanvas.addEventListener('click',handleGameTap);
+gameCanvas.addEventListener('touchstart',e=>{e.preventDefault();handleGameTap(e);},{passive:false});
+
+function endGame(){
+  gameActive=false;
+  if(gameAnimId) cancelAnimationFrame(gameAnimId);
+  const msg = gameMsgs.find(m=>gameScore>=m[0]&&gameScore<=m[1]);
+  document.getElementById('finalScore').textContent=gameScore;
+  document.getElementById('gameMsg').textContent=msg?msg[2]:'You did amazing! 💕';
+  document.getElementById('gameOver').style.display='flex';
+  if(gameScore>=20){ startFireworks(); burstBigConfetti(); }
+}
 </script>
 </body>
 </html>
